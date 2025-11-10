@@ -1,6 +1,16 @@
-def main():
-    print("Hello from dual-axis!")
+import sys
+from PySide6.QtWidgets import QApplication
 
+from gui import VentanaPrincipal
+
+
+def main():
+    app = QApplication(sys.argv)
+
+    window = VentanaPrincipal()
+    window.show()
+
+    _ = app.exec()
 
 if __name__ == "__main__":
     main()
