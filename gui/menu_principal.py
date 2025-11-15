@@ -10,8 +10,8 @@ class VentanaPrincipal(QMainWindow):
     def __init__(self) -> None:
         super().__init__()
         self.table = QTableView()
-
-        self.setMenuBar(MenuBar(self.table))
+        self.menuBar = MenuBar(self.table)
+        self.setMenuBar(self.menuBar)
 
         self.setWindowTitle("DualAxis")
 
