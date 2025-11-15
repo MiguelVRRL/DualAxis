@@ -1,11 +1,13 @@
-from PySide6.QtWidgets import QMenu, QMenuBar
+from PySide6.QtWidgets import QMenu, QMenuBar, QTableView
 from PySide6.QtGui import QAction
 
 class MenuBar(QMenuBar):
 
-    def __init__(self) -> None:
+    def __init__(self, tabla: QTableView ) -> None:
         super().__init__()
+        self.__tabla = tabla
         self.archivos_menu()
+
         self.edicion_menu()
         self.estadisticas_menu()
         self.graficos_menu()
