@@ -1,23 +1,35 @@
-from PySide6.QtWidgets import QMenu, QMenuBar, QTableView
+from PySide6.QtWidgets import QMenu, QMenuBar, QTableView, QFileDialog
 from PySide6.QtGui import QAction
+import pandas as pd
+
+from gui.tabla import Tabla
+from modelos import TablaDatos
 
 class MenuBar(QMenuBar):
 
-    def __init__(self, tabla: QTableView ) -> None:
+    def __init__(self, tabla: QTableView, datos: pd.DataFrame ) -> None:
         super().__init__()
+        self.__datos = datos
         self.__tabla = tabla
         self.archivos_menu()
 
         self.edicion_menu()
         self.estadisticas_menu()
         self.graficos_menu()
-        self.ayuda() 
+        self.ayuda()
+
+    # Menus
+
     def archivos_menu(self) -> None:
         archivos = self.addMenu("&Archivos")
 
         # definir actions
         nuevo_archivo = QAction("Nueva tabla",self,shortcut="Ctrl+n")
+
         abrir_archivo = QAction("Abrir archivo",self,shortcut="Ctrl+o")
+        abrir_archivo.triggered.connect(self.abrir_archivo)
+
+
         guardar_archivo = QAction("Guardar archivo",self,shortcut="Ctrl+S")
         guardar_archivo_como = QAction("Guardar archivo como",self,shortcut="Ctrl+Shift+S")
         cerrar_tabla = QAction("Cerrar tabla",self,shortcut="Ctrl+w")
@@ -106,4 +118,27 @@ class MenuBar(QMenuBar):
         ayuda.addAction(guia)
         ayuda.addAction(acerca_de)
         ayuda.addAction(novedades)
+    
+    # actions
 
+    def abrir_archivo(self) -> None:
+        file_name, _ = QFileDialog.getOpenFileName(
+            parent=None,
+            caption="Open File",
+            dir="",  # Initial directory
+            filter="Csv Files (*.csv);;All Files (*.*)" # File type filters
+        )
+        if file_name: 
+            self.__datos = TablaDatos(file_name)
+            tabla: Tabla =  Tabla(self.__datos.get_dataFrame())
+            self.__tabla.setModel(tabla)
+
+    # Actions de Archivos
+
+    # Actions de edicion
+
+    # Actions de estadisticas
+
+    # Actions de gráficos
+
+    # Actions de Ayuda

@@ -2,7 +2,8 @@ import pandas as pd
 
 class TablaDatos:
     def __init__(self, ubicacion: str) -> None:
-        match ubicacion.split(".")[len(ubicacion)-1]:
+        aux: list[str] = ubicacion.split(".") 
+        match aux[len(aux)-1]:
             case "csv":
                 self.__data_frame: pd.DataFrame = pd.read_csv(ubicacion)
             case "xlsx" | "xlsm" | "xls" | "xlsb":
@@ -12,12 +13,12 @@ class TablaDatos:
             case _:
                 return
             
-    def get_atributos(self) -> pd.Index[str]:
+    def get_atributos(self):
         return self.__data_frame.columns
     
     def get_num_elems_total(self) -> int:
         return self.__data_frame.size
-    def get_ocurrencias(self, columna: str) -> pd.Series[int]:
+    def get_ocurrencias(self, columna: str):
         return self.__data_frame[columna].value_counts()
     def get_valores(self, columna: str):
         return self.__data_frame[columna]
@@ -27,4 +28,5 @@ class TablaDatos:
     def get_num_elems(self, columna: str) -> int:
         return self.__data_frame[columna].size
 
-
+    def get_dataFrame(self):
+        return self.__data_frame

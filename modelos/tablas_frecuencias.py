@@ -25,7 +25,7 @@ class TablaFrecuencia:
         return map(lambda x: x/self.__n,self.__x)
 
     def frecuencia_rela_porcentual(self) ->float:
-        return map(lambda  x: x*100,self.frecuencia_relativa())+"%"
+        return map(lambda  x: x*100,self.frecuencia_relativa())
     
     def f_acumulada_ascendente(self)->int:
         lista_aux: list[int] = [self.__x[0]]

@@ -9,18 +9,14 @@ from gui.tabla import Tabla
 class VentanaPrincipal(QMainWindow):
     def __init__(self) -> None:
         super().__init__()
-        self.table = QTableView()
-        self.menuBar = MenuBar(self.table)
-        self.setMenuBar(self.menuBar)
+        self.__tabla = QTableView()
+        self.__datos = pd.DataFrame()
+        self.__menu_bar = MenuBar(self.__tabla,self.__datos)
+        self.setMenuBar(self.__menu_bar)
 
         self.setWindowTitle("DualAxis")
-
-
-
-        
-
        
-        self.setCentralWidget(self.table)
+        self.setCentralWidget(self.__tabla)
         
     def get_ventana(self) -> object:
         return self
