@@ -3,6 +3,7 @@ import pandas as pd
 
 from gui.menubar import MenuBar
 from gui.tabla import Tabla
+from modelos.tabla_de_datos import TablaDatos
 
 
 
@@ -10,7 +11,7 @@ class VentanaPrincipal(QMainWindow):
     def __init__(self) -> None:
         super().__init__()
         self.__tabla = QTableView()
-        self.__datos = pd.DataFrame()
+        self.__datos = TablaDatos()
         self.__menu_bar = MenuBar(self.__tabla,self.__datos)
         self.setMenuBar(self.__menu_bar)
 

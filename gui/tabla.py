@@ -2,17 +2,26 @@ from typing import override
 from PySide6.QtCore import QAbstractTableModel
 from PySide6.QtCore import Qt, QModelIndex
 
+from modelos.tabla_de_datos import TablaDatos
+
 class Tabla(QAbstractTableModel):
 
-    def __init__(self, data):
+    def __init__(self, data: TablaDatos):
         super().__init__()
-        self._data = data
+        self._data = data.get_dataFrame()
     
     @override
-    def data(self, index, role: Qt.DisplayRole) -> str:
-        if role == Qt.DisplayRole:
-            value = self._data.iloc[index.row(), index.column()]
-            return str(value)
+    def data(self, index, role=Qt.ItemDataRole.DisplayRole):
+        if index.isValid():
+            if role == Qt.ItemDataRole.DisplayRole or role == Qt.ItemDataRole.EditRole:
+                value = self._data.iloc[index.row(), index.column()]
+                return str(value)
+    @override
+    def setData(self, index, value, role):
+        if role == Qt.ItemDataRole.EditRole:
+            self._data.iloc[index.row(),index.column()] = value
+            print(self._data.iloc[index.row(),index.column()])
+            return True
     @override
     def rowCount(self, index: QModelIndex ):
         return self._data.shape[0]
@@ -28,3 +37,11 @@ class Tabla(QAbstractTableModel):
 
             if orientation == Qt.Vertical:
                 return str(self._data.index[section])
+    @override
+    def flags(self, index):
+        return (
+            Qt.ItemFlag.ItemIsSelectable
+            | Qt.ItemFlag.ItemIsEnabled
+            | Qt.ItemFlag.ItemIsEditable
+        )
+    
