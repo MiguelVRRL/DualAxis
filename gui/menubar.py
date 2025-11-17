@@ -121,6 +121,7 @@ class MenuBar(QMenuBar):
         
         # definir actions
         guia = QAction("Guia",self,shortcut="Ctrl+g")
+        
         acerca_de = QAction("Acerca de...",self)
         novedades = QAction("Novedades",self)
         
@@ -148,9 +149,9 @@ class MenuBar(QMenuBar):
             dir="",  # Initial directory
             filter="Csv Files (*.csv);; Excel Files (*.xls) ;;All Files (*.*)" # File type filters
         )
-        if nombre_archivo: 
-            if self.__archivos_recientes.add_archivo(nombre_archivo):
-                self.agregar_archivos_recientes(nombre_archivo)
+        if nombre_archivo:
+            self.agregar_archivos_recientes(nombre_archivo)
+            self.__archivos_recientes.add_archivo(nombre_archivo)
             self.__datos = TablaDatos(nombre_archivo)
             tabla: Tabla =  Tabla(self.__datos)
             self.__tabla.setModel(tabla)
@@ -163,8 +164,8 @@ class MenuBar(QMenuBar):
             return
         nombre_archivo, _ = QFileDialog.getSaveFileName(self,"Csv Files (*.csv);; Excel Files (*.xls) ;;All Files (*.*)")
         if nombre_archivo:
-            if self.__archivos_recientes.add_archivo(nombre_archivo):
-                self.agregar_archivos_recientes(nombre_archivo)
+            self.__archivos_recientes.add_archivo(nombre_archivo)
+            self.agregar_archivos_recientes(nombre_archivo)
             self.__datos.guardar_archivo(nombre_archivo) 
             self.__tabla.model().set_modificado()
     def cerrar_tabla(self) -> None:
@@ -190,8 +191,8 @@ class MenuBar(QMenuBar):
                 else:
                     self.guardar_archivo()
 
-        if self.__archivos_recientes.add_archivo(ubicacion):
-                self.agregar_archivos_recientes(ubicacion)
+        self.__archivos_recientes.add_archivo(ubicacion)
+        self.agregar_archivos_recientes(ubicacion)
         self.__datos = TablaDatos(ubicacion)
         tabla: Tabla =  Tabla(self.__datos)
         self.__tabla.setModel(tabla)
@@ -204,10 +205,17 @@ class MenuBar(QMenuBar):
             aux.triggered.connect(lambda _, ubicacion=i: self.abrir_archivo_reciente(ubicacion))
             self.__abrir_recientes.addAction(aux)
     def agregar_archivos_recientes(self,ubicacion: str) -> None:
+        if ubicacion in self.__archivos_recientes.get_archivos():
+            return
+        acciones = self.__abrir_recientes.actions()
+        if len(acciones)+1 > 7:
+
+            ultima_accion = acciones[0]
+            self.__abrir_recientes.removeAction(ultima_accion)
+        
         aux: QAction = QAction(ubicacion,self)
         aux.triggered.connect(lambda _, ubicacion=ubicacion: self.abrir_archivo_reciente(ubicacion))
         self.__abrir_recientes.addAction(aux)
-
     # Actions de Archivos
 
     # Actions de edicion
