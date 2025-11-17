@@ -1,8 +1,15 @@
 import pandas as pd
 
 class TablaDatos:
-    def __init__(self, ubicacion: str) -> None:
-        aux: list[str] = ubicacion.split(".") 
+    def __init__(self, ubicacion: str = "") -> None:
+        if ubicacion == "":
+            self.__ubicacion = ""
+            self.__ext = ""
+            self.__data_frame = pd.DataFrame()
+            return
+        self.__ubicacion: str = ubicacion
+        aux: list[str] = ubicacion.split(".")
+        self.__ext: str = aux[len(aux)-1]
         match aux[len(aux)-1]:
             case "csv":
                 self.__data_frame: pd.DataFrame = pd.read_csv(ubicacion)
@@ -12,7 +19,9 @@ class TablaDatos:
                 self.__data_frame: pd.DataFrame = pd.read_csv(ubicacion,delimiter="\t")
             case _:
                 return
-            
+    def set_dataFrame(self, dataFrame: pd.DataFrame) -> None:
+        self.__data_frame = dataFrame
+
     def get_atributos(self):
         return self.__data_frame.columns
     
@@ -30,3 +39,22 @@ class TablaDatos:
 
     def get_dataFrame(self):
         return self.__data_frame
+    def get_ubicacion(self) -> str:
+        return self.__ubicacion
+    def guardar_archivo(self,ubicacion: str = "") -> None:
+        if ubicacion != "":
+            self.__ubicacion = ubicacion
+            aux: list[str] = ubicacion.split(".")
+            self.__ext: str = aux[len(aux)-1]
+        if self.__ubicacion == "":
+            return
+        match self.__ext:
+            case "csv":
+                self.__data_frame.to_csv(self.__ubicacion,index=False)
+            case "xlsx" | "xlsm" | "xls" | "xlsb":
+                self.__data_frame.to_excel(self.__ubicacion,index=False,engine='xlrd')
+            case "txt":
+                self.__data_frame.to_csv(self.__ubicacion,sep="\t",index=False)
+            case _:
+                return
+    
