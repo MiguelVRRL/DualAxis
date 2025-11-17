@@ -1,6 +1,7 @@
 from typing import override
 from PySide6.QtCore import QAbstractTableModel
 from PySide6.QtCore import Qt, QModelIndex
+from numpy import bool_
 
 from modelos.tabla_de_datos import TablaDatos
 
@@ -9,7 +10,8 @@ class Tabla(QAbstractTableModel):
     def __init__(self, data: TablaDatos):
         super().__init__()
         self._data = data.get_dataFrame()
-    
+        self.__modificado: bool = False
+
     @override
     def data(self, index, role=Qt.ItemDataRole.DisplayRole):
         if index.isValid():
@@ -19,8 +21,8 @@ class Tabla(QAbstractTableModel):
     @override
     def setData(self, index, value, role):
         if role == Qt.ItemDataRole.EditRole:
+            self.__modificado = True
             self._data.iloc[index.row(),index.column()] = value
-            print(self._data.iloc[index.row(),index.column()])
             return True
     @override
     def rowCount(self, index: QModelIndex ):
@@ -44,4 +46,9 @@ class Tabla(QAbstractTableModel):
             | Qt.ItemFlag.ItemIsEnabled
             | Qt.ItemFlag.ItemIsEditable
         )
-    
+
+    def set_modificado(self) -> None:
+        self.__modificado = False
+
+    def get_modificado(self) -> bool:
+        return self.__modificado

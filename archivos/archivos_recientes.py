@@ -16,16 +16,18 @@ class ArchivosRecientes:
             if i.strip():
                 self.__archivos.append(i.rstrip("\n"))
         archivo.close()
-    def add_archivo(self, ubicacion: str) -> None:
+    def add_archivo(self, ubicacion: str) -> bool:
         if ubicacion in self.__archivos:
-            return
+            return False
         if ubicacion == "":
-            return
+            return False
         if len(self.__archivos) <= 7:
             self.__archivos.append(ubicacion)
+            return True
         else:
             self.__archivos.insert(0,ubicacion)
             _ = self.__archivos.pop()
+            return True
 
     def guardar_datos(self) -> None:
         with open(self.__ubicacion, "w+", encoding='utf-8') as archivo:
