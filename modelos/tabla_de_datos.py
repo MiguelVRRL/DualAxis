@@ -2,6 +2,10 @@ import pandas as pd
 
 class TablaDatos:
     def __init__(self, ubicacion: str = "") -> None:
+        self.set_nuevos_datos(ubicacion)
+    def set_dataFrame(self, dataFrame: pd.DataFrame) -> None:
+        self.__data_frame = dataFrame
+    def set_nuevos_datos(self, ubicacion: str = "") -> None:
         if ubicacion == "":
             self.__ubicacion = ""
             self.__ext = ""
@@ -19,12 +23,11 @@ class TablaDatos:
                 self.__data_frame: pd.DataFrame = pd.read_csv(ubicacion,delimiter="\t")
             case _:
                 return
-    def set_dataFrame(self, dataFrame: pd.DataFrame) -> None:
-        self.__data_frame = dataFrame
 
     def get_atributos(self):
         return self.__data_frame.columns
-    
+    def get_num_atributos(self) -> int:
+        return self.__data_frame.shape[1]
     def get_num_elems_total(self) -> int:
         return self.__data_frame.size
     def get_ocurrencias(self, columna: str):

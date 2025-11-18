@@ -4,6 +4,7 @@ from PySide6.QtGui import QAction
 import pandas as pd
 
 from archivos import ArchivosRecientes
+from gui.columns_dialog import ColumnDialog
 from gui.tabla import Tabla
 from modelos import TablaDatos
 
@@ -86,10 +87,19 @@ class MenuBar(QMenuBar):
         
         # Definir actions 
         medidas_resumen = QAction("Medidas resumen",self)
+        medidas_resumen.triggered.connect(self.medidas_resumen)
+
         tablas_frecuencias = QAction("Tablas de frecuencias",self)
+        tablas_frecuencias.triggered.connect(self.tablas_frecuencias)
+
         analisis_varianza = QAction("Analisis de varianza",self)
+        analisis_varianza.triggered.connect(self.analisis_varianza)
+
         coeficiente_determinacion = QAction("Coeficiente de determinación",self)
+        coeficiente_determinacion.triggered.connect(self.coeficiente_determinacion)
+
         regresion_lineal = QAction("Regresion lineal",self)
+        regresion_lineal.triggered.connect(self.regresion_lineal)
         
         # añadir elementos
         estadisticas.addAction(medidas_resumen)
@@ -105,9 +115,17 @@ class MenuBar(QMenuBar):
    
         # definir actions
         diagrama_dispersion = QAction("Diagrama de dispersion",self)
+        diagrama_dispersion.triggered.connect(self.diagrama_dispersion)
+
         grafico_barras = QAction("Gráfico de barras",self)
+        grafico_barras.triggered.connect(self.grafico_barras)
+
         grafico_doble_entrada = QAction("Gráfico de doble entrada",self)
+        grafico_doble_entrada.triggered.connect(self.grafico_doble_entrada)
+
         tabla_contingencia = QAction("Tabla de contingencia",self)
+        tabla_contingencia.triggered.connect(self.tabla_contingencia)
+
         # definir menus
         # añadir elementos
         graficos.addAction(diagrama_dispersion)
@@ -133,6 +151,7 @@ class MenuBar(QMenuBar):
     # actions
     
     def nueva_tabla(self) -> None:
+        self.__datos.set_nuevos_datos()
         self.__datos.set_dataFrame(pd.DataFrame([
           ["", ""],
           ["", ""],
@@ -152,11 +171,14 @@ class MenuBar(QMenuBar):
         if nombre_archivo:
             self.agregar_archivos_recientes(nombre_archivo)
             self.__archivos_recientes.add_archivo(nombre_archivo)
-            self.__datos = TablaDatos(nombre_archivo)
+            self.__datos.set_nuevos_datos(nombre_archivo)
             tabla: Tabla =  Tabla(self.__datos)
             self.__tabla.setModel(tabla)
 
     def guardar_archivo(self) -> None:
+        if not self.__datos.get_ubicacion(): 
+            self.guardar_archivo_como()
+            return
         self.__datos.guardar_archivo()
         self.__tabla.model().set_modificado()
     def guardar_archivo_como(self) -> None:
@@ -193,7 +215,7 @@ class MenuBar(QMenuBar):
 
         self.__archivos_recientes.add_archivo(ubicacion)
         self.agregar_archivos_recientes(ubicacion)
-        self.__datos = TablaDatos(ubicacion)
+        self.__datos.set_nuevos_datos(ubicacion)
         tabla: Tabla =  Tabla(self.__datos)
         self.__tabla.setModel(tabla)
         self.__tabla.model().set_modificado()
@@ -221,8 +243,49 @@ class MenuBar(QMenuBar):
     # Actions de edicion
 
     # Actions de estadisticas
+    def  medidas_resumen(self) -> None:
+        dlg = ColumnDialog("Medidas resumen")
+        if dlg.exec_():
+            pass 
+    def tablas_frecuencias(self) -> None:
+        dlg = ColumnDialog("Tabla de frecuencias")
+        if dlg.exec_():
+            pass 
 
+    def analisis_varianza(self) -> None:
+        dlg = ColumnDialog("Analisis de varianza")
+        if dlg.exec_():
+            pass 
+       
+    def coeficiente_determinacion(self) -> None:
+        dlg = ColumnDialog("Coeficiente de determinación")
+        if dlg.exec_():
+            pass 
+ 
+    def regresion_lineal(self) -> None:
+        dlg = ColumnDialog("Regresion")
+        if dlg.exec_():
+            pass 
     # Actions de gráficos
+    def diagrama_dispersion(self) -> None:
+        dlg = ColumnDialog("Diagrama de dispersión")
+        if dlg.exec_():
+            pass 
+
+    def grafico_barras(self) -> None:
+        dlg = ColumnDialog("Gráfico de barras")
+        if dlg.exec_():
+            pass 
+ 
+    def grafico_doble_entrada(self) -> None:
+        dlg = ColumnDialog("Gráfico de doble entrada")
+        if dlg.exec_():
+            pass 
+
+    def tabla_contingencia(self) -> None:
+        dlg = ColumnDialog("Regresion")
+        if dlg.exec_():
+            pass 
 
     # Actions de Ayuda
 
