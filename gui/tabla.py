@@ -1,7 +1,7 @@
 from typing import override
 from PySide6.QtCore import QAbstractTableModel
 from PySide6.QtCore import Qt, QModelIndex
-from numpy import bool_
+
 
 from modelos.tabla_de_datos import TablaDatos
 

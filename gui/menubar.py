@@ -4,7 +4,8 @@ from PySide6.QtGui import QAction
 import pandas as pd
 
 from archivos import ArchivosRecientes
-from gui.columns_dialog import ColumnDialog
+from gui.dos_var_dialog import DosVarDialog
+from gui.un_var_dialog import UnVarDialog
 from gui.tabla import Tabla
 from modelos import TablaDatos
 
@@ -244,46 +245,46 @@ class MenuBar(QMenuBar):
 
     # Actions de estadisticas
     def  medidas_resumen(self) -> None:
-        dlg = ColumnDialog("Medidas resumen")
+        dlg = UnVarDialog("Medidas resumen",self.__datos.get_atributos())
         if dlg.exec_():
             pass 
     def tablas_frecuencias(self) -> None:
-        dlg = ColumnDialog("Tabla de frecuencias")
+        dlg = UnVarDialog("Tabla de frecuencias",self.__datos.get_atributos())
         if dlg.exec_():
             pass 
 
     def analisis_varianza(self) -> None:
-        dlg = ColumnDialog("Analisis de varianza")
+        dlg = DosVarDialog("Analisis de varianza",self.__datos.get_atributos())
         if dlg.exec_():
             pass 
        
     def coeficiente_determinacion(self) -> None:
-        dlg = ColumnDialog("Coeficiente de determinación")
+        dlg = DosVarDialog("Coeficiente de determinación",self.__datos.get_atributos())
         if dlg.exec_():
             pass 
  
     def regresion_lineal(self) -> None:
-        dlg = ColumnDialog("Regresion")
+        dlg = DosVarDialog("Regresion",self.__datos.get_atributos())
         if dlg.exec_():
             pass 
     # Actions de gráficos
     def diagrama_dispersion(self) -> None:
-        dlg = ColumnDialog("Diagrama de dispersión")
+        dlg = DosVarDialog("Diagrama de dispersión",self.__datos.get_atributos())
         if dlg.exec_():
             pass 
 
     def grafico_barras(self) -> None:
-        dlg = ColumnDialog("Gráfico de barras")
+        dlg = UnVarDialog("Gráfico de barras",self.__datos.get_atributos())
         if dlg.exec_():
             pass 
  
     def grafico_doble_entrada(self) -> None:
-        dlg = ColumnDialog("Gráfico de doble entrada")
+        dlg = DosVarDialog("Gráfico de doble entrada",self.__datos.get_atributos())
         if dlg.exec_():
             pass 
 
     def tabla_contingencia(self) -> None:
-        dlg = ColumnDialog("Regresion")
+        dlg = DosVarDialog("Regresion",self.__datos.get_atributos())
         if dlg.exec_():
             pass 
 

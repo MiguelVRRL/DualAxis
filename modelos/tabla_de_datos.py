@@ -25,7 +25,7 @@ class TablaDatos:
                 return
 
     def get_atributos(self):
-        return self.__data_frame.columns
+        return self.__data_frame.columns.to_list()
     def get_num_atributos(self) -> int:
         return self.__data_frame.shape[1]
     def get_num_elems_total(self) -> int:
