@@ -2,7 +2,7 @@ from typing import override
 from PySide6.QtWidgets import QLabel, QMainWindow, QTableView, QMessageBox, QWidget, QVBoxLayout, QGroupBox,QHBoxLayout, QLabel, QGridLayout
 from PySide6.QtGui import QCloseEvent
 from PySide6.QtCore import QTimer
-
+import pandas as pd
 from gui.menubar import MenuBar
 from gui.tabla import Tabla
 from modelos import TablaDatos
@@ -13,6 +13,11 @@ class VentanaPrincipal(QMainWindow):
     def __init__(self) -> None:
         super().__init__()
         self.__datos = TablaDatos()
+        self.__datos.set_dataFrame(pd.DataFrame([
+          ["", ""],
+          ["", ""],
+          ["", ""],
+        ], columns = ['Columna 1', 'Columna 2'], index=['1', '2', '3']))
         self.__tabla = QTableView()
         self.__tabla.setModel(Tabla(self.__datos))
         self.__menu_bar = MenuBar(self.__tabla,self.__datos)

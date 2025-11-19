@@ -9,7 +9,7 @@ def main():
 
     window = VentanaPrincipal()
     window.showMaximized()
-
+    app.setStyle('Universal')
     _ = app.exec()
 
 if __name__ == "__main__":

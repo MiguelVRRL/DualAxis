@@ -1,31 +1,73 @@
-import numpy as np
+import math
+from collections import Counter
 
 class MedidasResumen:
-    def __init__(self,x: list[int | float ], fr: list[int] = []) -> None:
-        self.__x: list[int | float ] = x
-        self.__n: int = len(x)
-        self.__fr = fr
+    def __init__(self, x: list[int | float], fr: list[int] = []):
+        """
+        x: valores
+        fr: frecuencias (vacía => datos simples)
+        """
+        if not x:
+            raise ValueError("La lista de valores x no puede estar vacía.")
 
-    def sumatoria(self) -> int | float:
-        return sum(self.__x) 
-    def promedio(self)-> int  | float:
-        return self.sumatoria()/self.__n
+        self.x = x
+        self.fr = fr if fr else [1] * len(x)  # si no hay frecuencia = 1 por dato
 
-    def sumatoria_cuadrado(self)-> int | float:
-        return sum(map(lambda x: x**2,self.__x))
+        if len(self.x) != len(self.fr):
+            raise ValueError("x y fr deben tener la misma longitud.")
 
-    def analisis_aux(self)->float:
-        x_prom: int | float = self.promedio() 
-        return sum(map(lambda x: x - x_prom,self.__x))
+        # Construir lista expandida para cálculos exactos
+        self.lista = []
+        for valor, freq in zip(self.x, self.fr):
+            self.lista += [valor] * freq
 
-    def varianza_poblacional_cuadrado(self)->float:
-        return self.analisis_aux()/self.__n
+        self.lista.sort()
+        self.n = len(self.lista)
 
-    def varianza_poblacional(self)->float:
-        return sqrt(self.varianzapoblacional_cuadrado())
+    # -------------------------------------------------------
+    # MÉTODOS ESTADÍSTICOS
+    # -------------------------------------------------------
+    def media(self):
+        return sum(self.lista) / self.n
 
-    def varianzamuestral_cuadrado(self)->float:
-        return self.analisis_aux()/(self.__n-1)
+    def promedio(self):
+        return self.media()
 
-    def varianza_muestral(self)->float:
-        return sqrt(self.varianzamuestral_cuadrado())
+    def mediana(self):
+        mid = self.n // 2
+        if self.n % 2 == 0:
+            return (self.lista[mid - 1] + self.lista[mid]) / 2
+        return self.lista[mid]
+
+    def moda(self):
+        conteo = Counter(self.lista)
+        maxf = max(conteo.values())
+        modas = [x for x, f in conteo.items() if f == maxf]
+
+        if len(modas) == len(conteo):
+            return None  # Sin moda real
+        return modas
+
+    def suma(self):
+        return sum(self.lista)
+
+    def suma_cuadrados(self):
+        return sum(x*x for x in self.lista)
+
+    def minimo(self):
+        return self.lista[0]
+
+    def maximo(self):
+        return self.lista[-1]
+
+    def rango(self):
+        return self.maximo() - self.minimo()
+
+    def varianza(self, muestra=False):
+        μ = self.media()
+        if muestra:
+            return sum((x - μ)**2 for x in self.lista) / (self.n - 1)
+        return sum((x - μ)**2 for x in self.lista) / self.n
+
+    def desviacion_estandar(self, muestra=False):
+        return math.sqrt(self.varianza(muestra))

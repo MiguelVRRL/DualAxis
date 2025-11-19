@@ -247,7 +247,7 @@ class MenuBar(QMenuBar):
     def  medidas_resumen(self) -> None:
         dlg = UnVarDialog("Medidas resumen",self.__datos.get_atributos())
         if dlg.exec_():
-            pass 
+            dlg.get_atributo()
     def tablas_frecuencias(self) -> None:
         dlg = UnVarDialog("Tabla de frecuencias",self.__datos.get_atributos())
         if dlg.exec_():

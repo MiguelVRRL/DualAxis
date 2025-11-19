@@ -47,6 +47,8 @@ class Tabla(QAbstractTableModel):
             | Qt.ItemFlag.ItemIsEditable
         )
 
+
+
     def set_modificado(self) -> None:
         self.__modificado = False
 

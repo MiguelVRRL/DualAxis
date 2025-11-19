@@ -1,0 +1,2 @@
+C:/Users/USER/Documents/DualAxis/test/leer_csv/pokemon_data2.csv
+C:/Users/USER/Documents/DualAxis/test/leer_csv/pokemon_data.csv
