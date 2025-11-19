@@ -1,8 +1,9 @@
 from typing import override
-from PySide6.QtWidgets import QLabel, QMainWindow, QTableView, QMessageBox, QWidget, QVBoxLayout, QGroupBox,QHBoxLayout, QLabel, QGridLayout
-from PySide6.QtGui import QCloseEvent
-from PySide6.QtCore import QTimer
+from PySide6.QtWidgets import QLabel, QMainWindow, QMenu, QTableView, QMessageBox, QWidget, QVBoxLayout, QGroupBox, QLabel, QGridLayout
+from PySide6.QtGui import QAction, QCloseEvent
+from PySide6.QtCore import QPoint, QTimer, Qt
 import pandas as pd
+from gui.menu_opciones import MenuOpciones
 from gui.menubar import MenuBar
 from gui.tabla import Tabla
 from modelos import TablaDatos
@@ -18,7 +19,9 @@ class VentanaPrincipal(QMainWindow):
           ["", ""],
           ["", ""],
         ], columns = ['Columna 1', 'Columna 2'], index=['1', '2', '3']))
-        self.__tabla = QTableView()
+        self.__tabla: QTableView = QTableView()
+        self.__tabla.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.__tabla.customContextMenuRequested.connect(self.menu_opciones)
         self.__tabla.setModel(Tabla(self.__datos))
         self.__menu_bar = MenuBar(self.__tabla,self.__datos)
 
@@ -71,3 +74,13 @@ class VentanaPrincipal(QMainWindow):
         self.__num_atributos.setText(str(self.__datos.get_num_atributos()))
     def get_ventana(self) -> object:
         return self
+
+    def menu_opciones(self, posicion: QPoint):
+        index = self.__tabla.indexAt(posicion)
+        if not index.isValid():
+            return
+        
+        menu = MenuOpciones(self,self.__datos,self.__tabla,index)
+        
+        menu.exec(self.__tabla.viewport().mapToGlobal(posicion))
+
