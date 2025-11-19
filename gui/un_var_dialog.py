@@ -32,8 +32,8 @@ class UnVarDialog(QDialog):
         self.layout.addWidget(self.lista_atributos,1,0)
         self.layout.addWidget(self.lista_x,1,1)
         self.layout.addWidget(self.buttonBox,2,1)
-    def get_atributo() -> str:
-        return self.lista_x.item(1).text()
+    def get_atributo(self) -> str:
+        return self.lista_x.item(0).text()
     def add_item(self,i) -> None:
         if self.lista_x.count() < 1:
             self.lista_x.addItem(self.lista_atributos.item(i.row()).text())

@@ -1,13 +1,16 @@
-from PySide6.QtWidgets import QApplication, QMenu, QMenuBar, QFileDialog, QMessageBox, QTableView
+from PySide6.QtWidgets import QApplication, QFrame, QGridLayout, QLabel, QMenu, QMenuBar, QFileDialog, QMessageBox, QTableView
 from PySide6.QtGui import QAction
 
 import pandas as pd
 
 from archivos import ArchivosRecientes
+from gui.dialog_general import DialogGeneral
 from gui.dos_var_dialog import DosVarDialog
 from gui.un_var_dialog import UnVarDialog
 from gui.tabla import Tabla
 from modelos import TablaDatos
+from modelos import medidas_resumen
+from modelos.medidas_resumen import MedidasResumen
 
 class MenuBar(QMenuBar):
 
@@ -247,7 +250,42 @@ class MenuBar(QMenuBar):
     def  medidas_resumen(self) -> None:
         dlg = UnVarDialog("Medidas resumen",self.__datos.get_atributos())
         if dlg.exec_():
-            dlg.get_atributo()
+            lista: list[int | float] = []
+            if self.__datos.get_tipo(dlg.get_atributo()) == "literal":
+                lista = self.__datos.get_ocurrencias(dlg.get_atributo()).tolist()
+            else:
+                lista = self.__datos.get_dataFrame()[dlg.get_atributo()].tolist()  
+            medidas_resumen_var: MedidasResumen = MedidasResumen(lista)
+            frame = QFrame()
+            layout = QGridLayout()
+            frame.setLayout(layout)
+            
+            layout.addWidget(QLabel("Nº de elementos:"),0,0)
+            layout.addWidget(QLabel(str(medidas_resumen_var.n)),0,1)
+            layout.addWidget(QLabel("Promedio: "),1,0)
+            layout.addWidget(QLabel(str(medidas_resumen_var.promedio())),1,1)
+            layout.addWidget(QLabel("Media:"),2,0)
+            layout.addWidget(QLabel(str(medidas_resumen_var.media())),2,1)
+            layout.addWidget(QLabel("Moda"),3,0)
+            layout.addWidget(QLabel(str(medidas_resumen_var.moda())),3,1)
+            layout.addWidget(QLabel("Mínimo"),4,0)
+            layout.addWidget(QLabel(str(medidas_resumen_var.minimo())),4,1)
+            layout.addWidget(QLabel("Máximo"),5,0)
+            layout.addWidget(QLabel(str(medidas_resumen_var.maximo())),5,1)
+            layout.addWidget(QLabel("Suma de cuadrados"),6,0) 
+            layout.addWidget(QLabel(str(medidas_resumen_var.suma_cuadrados())),6,1) 
+            layout.addWidget(QLabel("Varianza Poblacional"),7,0) 
+            layout.addWidget(QLabel(str(medidas_resumen_var.varianza())),7,1) 
+            layout.addWidget(QLabel("Varianza Muestral"),8,0) 
+            layout.addWidget(QLabel(str(medidas_resumen_var.varianza(True))),8,1) 
+            layout.addWidget(QLabel("Desv. Estandar Poblacional"),9,0) 
+            layout.addWidget(QLabel(str(medidas_resumen_var.desviacion_estandar())),9,1) 
+            layout.addWidget(QLabel("Desv. Estandar Muestral"),10,0) 
+            layout.addWidget(QLabel(str(medidas_resumen_var.desviacion_estandar(True))),10,1) 
+
+
+            dlg_general = DialogGeneral("Medidas resumen",frame)
+            dlg_general.exec_()
     def tablas_frecuencias(self) -> None:
         dlg = UnVarDialog("Tabla de frecuencias",self.__datos.get_atributos())
         if dlg.exec_():

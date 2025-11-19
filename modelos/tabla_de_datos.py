@@ -23,7 +23,10 @@ class TablaDatos:
                 self.__data_frame: pd.DataFrame = pd.read_csv(ubicacion,delimiter="\t")
             case _:
                 return
-
+    def get_tipo(self,columna: str) -> str:
+        if type(self.__data_frame[columna].iloc[0]) == str:
+            return "literal"
+        return "numerico"
     def get_atributos(self):
         return self.__data_frame.columns.to_list()
     def get_num_atributos(self) -> int:

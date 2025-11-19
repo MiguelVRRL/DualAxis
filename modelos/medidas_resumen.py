@@ -71,3 +71,20 @@ class MedidasResumen:
 
     def desviacion_estandar(self, muestra=False):
         return math.sqrt(self.varianza(muestra))
+    def resumen(self):
+        return {
+            "n": self.n,
+            "media": self.media(),
+            "promedio": self.promedio(),
+            "mediana": self.mediana(),
+            "moda": self.moda(),
+            "mínimo": self.minimo(),
+            "máximo": self.maximo(),
+            "rango": self.rango(),
+            "suma": self.suma(),
+            "suma de cuadrados": self.suma_cuadrados(),
+            "varianza poblacional": self.varianza(),
+            "varianza muestral": self.varianza(muestra=True),
+            "desv. estándar poblacional": self.desviacion_estandar(),
+            "desv. estándar muestral": self.desviacion_estandar(muestra=True)
+        }
