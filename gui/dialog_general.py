@@ -1,4 +1,4 @@
-from PySide6.QtWidgets import QDialog,QDialogButtonBox, QGridLayout, QListWidget, QLabel, QFrame
+from PySide6.QtWidgets import QDialog,QDialogButtonBox, QGridLayout, QFrame, QWidget
 
 class DialogGeneral(QDialog):
     def __init__(self, titulo: str,frame: QFrame):
@@ -15,4 +15,9 @@ class DialogGeneral(QDialog):
 
         self.layout.addWidget(frame,0,0)
         self.layout.addWidget(self.buttonBox,1,0)
+    def addWidgetP(self, widget: QWidget,columna: int, fila: int):
+        self.layout.addWidget(widget,columna,fila)
+
+
+
 

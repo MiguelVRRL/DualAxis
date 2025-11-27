@@ -1,7 +1,7 @@
 from typing import override
 from PySide6.QtWidgets import QLabel, QMainWindow, QMenu, QTableView, QMessageBox, QWidget, QVBoxLayout, QGroupBox, QLabel, QGridLayout
 from PySide6.QtGui import QAction, QCloseEvent
-from PySide6.QtCore import QPoint, QTimer, Qt
+from PySide6.QtCore import QMessageAuthenticationCode, QPoint, QTimer, Qt
 import pandas as pd
 from gui.menu_opciones import MenuOpciones
 from gui.menubar import MenuBar
@@ -18,7 +18,7 @@ class VentanaPrincipal(QMainWindow):
           ["", ""],
           ["", ""],
           ["", ""],
-        ], columns = ['Columna 1', 'Columna 2'], index=['1', '2', '3']))
+        ], columns = ['Columna 1', 'Columna 2'], index=['0', '1', '2']))
         self.__tabla: QTableView = QTableView()
         self.__tabla.setContextMenuPolicy(Qt.CustomContextMenu)
         self.__tabla.customContextMenuRequested.connect(self.menu_opciones)
@@ -59,8 +59,7 @@ class VentanaPrincipal(QMainWindow):
         
 
     @override
-    def closeEvent(self, event: QCloseEvent, /) -> None:
-        
+    def closeEvent(self, event: QCloseEvent, /) -> None: 
         confirmacion = QMessageBox.question(self, "Confirmation", "Estas seguro de que quieres cerrar DualAxis?", QMessageBox.Yes | QMessageBox.No)
 
         if confirmacion == QMessageBox.Yes:

@@ -1,16 +1,25 @@
-from PySide6.QtWidgets import QApplication, QFrame, QGridLayout, QLabel, QMenu, QMenuBar, QFileDialog, QMessageBox, QTableView
+from PySide6.QtWidgets import QApplication, QFrame, QGridLayout, QLabel, QMenu, QMenuBar, QFileDialog, QMessageBox, QPushButton, QTableView
 from PySide6.QtGui import QAction
+from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
 
+from graficos.tablas_contigencia import TablaContigencia
 import pandas as pd
 
+
 from archivos import ArchivosRecientes
+from graficos.graficos_barras import GraficoBarra
+from graficos.graficos_dispersion import GraficoDispersion
+from graficos.graficos_doble_entrada import GraficoDobleEntrada
 from gui.dialog_general import DialogGeneral
 from gui.dos_var_dialog import DosVarDialog
+from gui.table_model import TableModel
 from gui.un_var_dialog import UnVarDialog
 from gui.tabla import Tabla
 from modelos import TablaDatos
 from modelos import medidas_resumen
+from modelos import tablas_frecuencias
 from modelos.medidas_resumen import MedidasResumen
+from modelos.tablas_frecuencias import TablaFrecuencia
 
 class MenuBar(QMenuBar):
 
@@ -25,7 +34,7 @@ class MenuBar(QMenuBar):
         self.edicion_menu()
         self.estadisticas_menu()
         self.graficos_menu()
-        self.ayuda()
+
 
     # Menus
 
@@ -72,8 +81,7 @@ class MenuBar(QMenuBar):
         cortar = QAction("Cortar",self,shortcut="Ctrl+x")
         copiar = QAction("Copiar", self,shortcut="Ctrl+c")
         pegar = QAction("Pegar",self,shortcut="Ctrl+v")
-        borrar = QAction("Borrar",self,shortcut="Ctrl+d")
-        seleccionar_todo = QAction("Seleccionar todo",self,shortcut="Ctrl+A")
+
 
         # definir menus
 
@@ -81,9 +89,7 @@ class MenuBar(QMenuBar):
         edicion.addAction(cortar)
         edicion.addAction(copiar)
         edicion.addAction(pegar)
-        edicion.addAction(borrar)
-        _ = edicion.addSeparator()
-        edicion.addAction(seleccionar_todo)
+
 
 
     def estadisticas_menu(self) -> None:
@@ -160,7 +166,7 @@ class MenuBar(QMenuBar):
           ["", ""],
           ["", ""],
           ["", ""],
-        ], columns = ['Columna 1', 'Columna 2'], index=['1', '2', '3']))
+        ], columns = ['Columna 1', 'Columna 2'], index=['0', '1', '2']))
         
         tabla: Tabla =  Tabla(self.__datos)
         self.__tabla.setModel(tabla)
@@ -170,7 +176,7 @@ class MenuBar(QMenuBar):
             parent=None,
             caption="Open File",
             dir="",  # Initial directory
-            filter="Csv Files (*.csv);; Excel Files (*.xls) ;;All Files (*.*)" # File type filters
+            filter="Csv Files (*.csv);; Excel Files (*.xls,*.xlsx) ;;All Files (*.*)" # File type filters
         )
         if nombre_archivo:
             self.agregar_archivos_recientes(nombre_archivo)
@@ -252,7 +258,7 @@ class MenuBar(QMenuBar):
         if dlg.exec_():
             lista: list[int | float] = []
             if self.__datos.get_tipo(dlg.get_atributo()) == "literal":
-                lista = self.__datos.get_ocurrencias(dlg.get_atributo()).tolist()
+                lista = self.__datos.get_ocurrencias(dlg.get_atributo())[dlg.get_atributo()].to_list()
             else:
                 lista = self.__datos.get_dataFrame()[dlg.get_atributo()].tolist()  
             medidas_resumen_var: MedidasResumen = MedidasResumen(lista)
@@ -289,42 +295,159 @@ class MenuBar(QMenuBar):
     def tablas_frecuencias(self) -> None:
         dlg = UnVarDialog("Tabla de frecuencias",self.__datos.get_atributos())
         if dlg.exec_():
-            pass 
+            datos = self.__datos.get_ocurrencias(dlg.get_atributo())
+            tabla_frecuencia: TablaFrecuencia = TablaFrecuencia(datos,dlg.get_atributo(),self.__datos.get_tipo(dlg.get_atributo()))
+            
+            frame = QFrame()
+            layout = QGridLayout()
+            frame.setLayout(layout)
+            model = TableModel(tabla_frecuencia.get_tabla(),tabla_frecuencia.get_headers())
+            tabla: QTableView = QTableView()
+            tabla.setModel(model)
+            layout.addWidget(tabla)
+            
+            dlg_general = DialogGeneral("Tabla de frecuencias",frame)
+            dlg_general.adjustSize()
+            dlg_general.exec_()
 
     def analisis_varianza(self) -> None:
-        dlg = DosVarDialog("Analisis de varianza",self.__datos.get_atributos())
+        dlg = DosVarDialog("Análisis de varianza",self.__datos.get_atributos())
         if dlg.exec_():
-            pass 
+            
+            frame = QFrame()
+            layout = QGridLayout()
+            frame.setLayout(layout)
+
+            dlg_general = DialogGeneral("Análisis de varianza",frame)
+            dlg_general.exec_()
+ 
        
     def coeficiente_determinacion(self) -> None:
         dlg = DosVarDialog("Coeficiente de determinación",self.__datos.get_atributos())
         if dlg.exec_():
-            pass 
+            
+            frame = QFrame()
+            layout = QGridLayout()
+            frame.setLayout(layout)
+
+            dlg_general = DialogGeneral("Coeficiente de determinación",frame)
+            dlg_general.exec_()
+
  
     def regresion_lineal(self) -> None:
         dlg = DosVarDialog("Regresion",self.__datos.get_atributos())
         if dlg.exec_():
-            pass 
+            frame = QFrame()
+            layout = QGridLayout()
+            frame.setLayout(layout)
+
+            dlg_general = DialogGeneral("Regresión",frame)
+            dlg_general.exec_()
+ 
     # Actions de gráficos
+
+    def guardar_grafico(self):
+        nombre_archivo, _ = QFileDialog.getSaveFileName(self,"Csv Files (*.csv);; Excel Files (*.xls,*.xlsx) ;;All Files (*.*)")
+        if nombre_archivo:
+            return nombre_archivo
+        return ""
+
     def diagrama_dispersion(self) -> None:
-        dlg = DosVarDialog("Diagrama de dispersión",self.__datos.get_atributos())
+        dlg = DosVarDialog("Diagrama de dispersión",self.__datos.get_atributos("bool","literal"))
         if dlg.exec_():
-            pass 
+             
+            atributo_x = self.__datos.get_valores(dlg.get_atributo_x()).to_list()
+            atributo_y = self.__datos.get_valores(dlg.get_atributo_y()).to_list()
+            graficos_doble = GraficoDispersion(atributo_x,atributo_y,dlg.get_atributo_x(),dlg.get_atributo_y())
+            frame = QFrame()
+            layout = QGridLayout()
+            frame.setLayout(layout)
+
+            canvas = FigureCanvas(graficos_doble.get_grafico())
+            boton_guardar = QPushButton("Guardar gráfica")
+            boton_guardar.setFixedSize(120,35)
+            boton_guardar.clicked.connect(lambda: graficos_doble.guardar_grafico(self.guardar_grafico()))
+            layout.addWidget(canvas)
+            layout.addWidget(boton_guardar)
+
+            canvas.draw()
+            dlg_general = DialogGeneral("Diagrama de dispersión",frame)
+            dlg_general.adjustSize()
+            dlg_general.exec_()
 
     def grafico_barras(self) -> None:
-        dlg = UnVarDialog("Gráfico de barras",self.__datos.get_atributos())
+        dlg = UnVarDialog("Gráfico de barras",self.__datos.get_atributos("bool"))
         if dlg.exec_():
-            pass 
+            
+            graficos_barras = GraficoBarra(self.__datos.get_ocurrencias(dlg.get_atributo()),dlg.get_atributo())
+            frame = QFrame()
+            layout = QGridLayout()
+            frame.setLayout(layout)
+
+            canvas = FigureCanvas(graficos_barras.get_grafico())
+            boton_guardar = QPushButton("Guardar gráfica")
+            boton_guardar.setFixedSize(120,35)
+            boton_guardar.clicked.connect(lambda: graficos_barras.guardar_grafico(self.guardar_grafico()))
+            layout.addWidget(canvas)
+            layout.addWidget(boton_guardar)
+
+            canvas.draw()
+
+            dlg_general = DialogGeneral("Gráfico de barras",frame)
+            dlg_general.adjustSize()
+            dlg_general.exec_()
+ 
  
     def grafico_doble_entrada(self) -> None:
-        dlg = DosVarDialog("Gráfico de doble entrada",self.__datos.get_atributos())
+        dlg = DosVarDialog("Gráfico de doble entrada",self.__datos.get_atributos(),*self.__datos.get_atributos("bool","literal"))
         if dlg.exec_():
-            pass 
+
+            atributo_x = self.__datos.get_valores(dlg.get_atributo_x())
+            atributo_y = self.__datos.get_valores(dlg.get_atributo_y())
+            frame = QFrame()
+            layout = QGridLayout()
+            frame.setLayout(layout)
+            
+            graficos_doble = GraficoDobleEntrada(atributo_x,atributo_y,dlg.get_atributo_x(),dlg.get_atributo_y(),self.__datos)
+            canvas = FigureCanvas(graficos_doble.get_grafico())
+               
+           
+            boton_guardar = QPushButton("Guardar gráfica")
+            boton_guardar.setFixedSize(120,35)
+            boton_guardar.clicked.connect(lambda: graficos_doble.guardar_grafico(self.guardar_grafico()))
+            layout.addWidget(canvas)
+            layout.addWidget(boton_guardar)
+
+            canvas.draw()
+            dlg_general = DialogGeneral("Gráfico de doble entrada",frame)
+            dlg_general.exec_()
+
 
     def tabla_contingencia(self) -> None:
         dlg = DosVarDialog("Regresion",self.__datos.get_atributos())
         if dlg.exec_():
-            pass 
+            
+            if self.__datos.get_tipo(dlg.get_atributo_x())=='literal':
+                atributo_x = self.__datos.get_valores(dlg.get_atributo_x()).to_list()
+            if self.__datos.get_tipo(dlg.get_atributo_y()) == 'literal':
+                atributo_y = self.__datos.get_valores(dlg.get_atributo_y()).to_list()
+            tabla_contigencia: TablaContigencia = TablaContigencia(atributo_x,atributo_y,dlg.get_atributo_x(),dlg.get_atributo_y(),self.__datos)
+            
+            frame = QFrame()
+            layout = QGridLayout()
+            frame.setLayout(layout)
+            table_view = QTableView()
+            modelo = Tabla(tabla_contigencia.get_dataFrame())
+            table_view.setModel(modelo)
+            boton_guardar = QPushButton("Guardar gráfica")
+            boton_guardar.setFixedSize(120,35)
+            boton_guardar.clicked.connect(lambda: tabla_contigencia.guardar_grafico(self.guardar_grafico()))
+
+            layout.addWidget(table_view)
+            layout.addWidget(boton_guardar)
+            dlg_general = DialogGeneral("Tabla de contigencia",frame)
+            dlg_general.exec_()
+ 
 
     # Actions de Ayuda
 

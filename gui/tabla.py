@@ -1,15 +1,18 @@
 from typing import override
 from PySide6.QtCore import QAbstractTableModel
 from PySide6.QtCore import Qt, QModelIndex
-
+import pandas as pd
 
 from modelos.tabla_de_datos import TablaDatos
 
 class Tabla(QAbstractTableModel):
 
-    def __init__(self, data: TablaDatos):
+    def __init__(self, data: TablaDatos | pd.DataFrame):
         super().__init__()
-        self._data = data.get_dataFrame()
+        if isinstance(data,TablaDatos):
+            self._data = data.get_dataFrame()
+        else:
+            self._data = data
         self.__modificado: bool = False
 
     @override
@@ -47,8 +50,82 @@ class Tabla(QAbstractTableModel):
             | Qt.ItemFlag.ItemIsEditable
         )
 
+    def insertar_fila(self, position,parent=QModelIndex()):
+    
+        self.beginInsertRows(parent, position, position)
+    
+        # Método más directo - añadir fila vacía
+
+        for i in range(len(self._data)-2, position-1, -1):  # -2 porque ya añadimos una fila
+            if i >= position:
+                self._data.iloc[i+1] = self._data.iloc[i].copy()
+        self._data.loc[position] = [""] * len(self._data.columns)
+
+        self.endInsertRows()
+        self.__modificado = True
+
+        return True
 
 
+    def eliminar_fila(self,position, parent=QModelIndex()):
+        # Verificar que hay filas para eliminar
+        if self.rowCount(parent) <= 1 or position >= self.rowCount(parent) :
+            return False
+    
+        
+    
+        # Comenzar a eliminar - UNA fila en la última posición
+        self.beginRemoveRows(parent, position, position)
+    
+        # Eliminar la última fila del DataFrame
+
+        self._data = self._data.drop(self._data.index[position]).reset_index(drop=True)
+ 
+        # Finalizar la eliminación
+        self.endRemoveRows()
+        self.__modificado = True
+        return True
+    def insertar_columna(self, position, nombre_columna, parent=QModelIndex()):
+
+        # Verificar posición válida
+        if position < 0 or position > self.columnCount(parent):
+            return False
+    
+        # Comenzar a insertar columnas
+        self.beginInsertColumns(parent, position, position)
+    
+        # Insertar la nueva columna en el DataFrame
+        self._data.insert(position, nombre_columna, [""] * len(self._data))
+    
+        # Finalizar la inserción
+        self.endInsertColumns()
+        self.__modificado = True
+        return True
+    def eliminar_columna(self, position, parent=QModelIndex()):
+
+        # Verificar que la posición sea válida
+        if position < 0 or position >= self.columnCount(parent):
+            print(f"Posición {position} inválida. Columnas disponibles: 0-{self.columnCount(parent)-1}")
+            return False
+    
+        # Verificar que no sea la última columna
+        if self.columnCount(parent) <= 1:
+            QMessageBox.warning(None, "Error", "No se puede eliminar la última columna")
+            return False
+    
+        # Comenzar a eliminar columnas
+        self.beginRemoveColumns(parent, position, position)
+    
+        # Obtener nombre de la columna y eliminarla
+        nombre_columna = self._data.columns[position]
+        self._data = self._data.drop(columns=[nombre_columna])
+    
+        # Finalizar la eliminación
+        self.endRemoveColumns()
+        self.__modificado = True
+    
+
+        return True
     def set_modificado(self) -> None:
         self.__modificado = False
 

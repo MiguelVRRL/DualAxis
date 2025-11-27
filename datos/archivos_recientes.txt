@@ -1,1 +1,4 @@
 /home/rudel/Documentos/python/projects/dual_axis/test/leer_csv/pokemon_data.csv
+/home/rudel/Documentos/python/projects/dual_axis/test/leer_csv/pokemon_data2.csv
+/home/rudel/Documentos/python/projects/dual_axis/test/leer_csv/pokemon_data.xlsx
+/home/rudel/Documentos/python/projects/dual_axis/test/leer_csv/la_pta_que_los_pario.csv

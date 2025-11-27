@@ -2,8 +2,9 @@ from typing import override
 from PySide6.QtWidgets import QDialog,QDialogButtonBox, QGridLayout, QGroupBox, QLabel, QListWidget, QVBoxLayout, QGroupBox
 
 class DosVarDialog(QDialog):
-    def __init__(self, titulo: str,atributos: list[str]):
+    def __init__(self, titulo: str,atributos: list[str], *tipo_excluido):
         super().__init__()
+        self.__tipos_excluidos = tipo_excluido
         self.__atributos = atributos
         self.setWindowTitle(titulo)
         self.layout = QGridLayout()
@@ -55,17 +56,26 @@ class DosVarDialog(QDialog):
 
     def add_item(self,i) -> None:
         if self.lista_x.count() == 0:
+            if self.lista_atributos.item(i.row()).text() in self.__tipos_excluidos:
+                return
+
             self.lista_x.addItem(self.lista_atributos.item(i.row()).text())
             self.lista_atributos.takeItem(i.row())
         elif self.lista_x.count() == 1 and self.lista_y.count() == 0:
+
+
             self.lista_y.addItem(self.lista_atributos.item(i.row()).text())
             self.lista_atributos.takeItem(i.row())
 
-    def quitar_item_x(self,i) -> None:
+    def quitar_item_x(self,i) -> None: 
         self.lista_atributos.addItem(self.lista_x.item(i.row()).text())
         self.lista_x.takeItem(i.row())
     def quitar_item_y(self,i) -> None:
         self.lista_atributos.addItem(self.lista_y.item(i.row()).text())
         self.lista_y.takeItem(i.row())
     
-   
+    def get_atributo_x(self) -> str:
+        return self.lista_x.item(0).text()
+    def get_atributo_y(self) -> str:
+        return self.lista_y.item(0).text()
+
