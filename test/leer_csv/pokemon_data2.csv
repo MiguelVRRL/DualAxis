@@ -1,5 +1,7 @@
 #,Name,Type 1,Type 2,HP,Attack,Defense,Sp. Atk,Sp. Def,Speed,Generation,Legendary
 1,Bulbasaur,Grass,Poison,45,49,49,65,65,45,1,False
+1,Bulbasaur,Grass,Poison,45,49,49,65,65,45,1,False
+2,Ivysaur,Grass,Poison,60,62,63,80,80,60,1,False
 2,Ivysaur,Grass,Poison,60,62,63,80,80,60,1,False
 3,Venusaur,Grass,Poison,80,82,83,100,100,80,1,False
 3,VenusaurMega Venusaur,Grass,Poison,80,100,123,122,120,80,1,False
@@ -21,5 +23,3 @@
 15,BeedrillMega Beedrill,Bug,Poison,65,150,40,15,80,145,1,False
 16,Pidgey,Normal,Flying,40,45,40,35,35,56,1,False
 17,Pidgeotto,Normal,Flying,63,60,55,50,50,71,1,False
-18,Pidgeot,Normal,Flying,83,80,75,70,70,101,1,False
-18,PidgeotMega Pidgeot,Normal,Flying,83,80,80,135,80,121,1,False

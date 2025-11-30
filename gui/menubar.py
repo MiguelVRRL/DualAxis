@@ -1,5 +1,5 @@
-from PySide6.QtWidgets import QApplication, QFrame, QGridLayout, QLabel, QMenu, QMenuBar, QFileDialog, QMessageBox, QPushButton, QTableView
-from PySide6.QtGui import QAction
+from PySide6.QtWidgets import QApplication, QFrame, QGridLayout, QLabel, QLineEdit, QMenu, QMenuBar, QFileDialog, QMessageBox, QPushButton, QTableView
+from PySide6.QtGui import QAction, QIntValidator
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
 
 from graficos.tablas_contigencia import TablaContigencia
@@ -18,7 +18,9 @@ from gui.tabla import Tabla
 from modelos import TablaDatos
 from modelos import medidas_resumen
 from modelos import tablas_frecuencias
+from modelos.anare import Anare
 from modelos.medidas_resumen import MedidasResumen
+from modelos.regresion_lineal import RegresionLineal
 from modelos.tablas_frecuencias import TablaFrecuencia
 
 class MenuBar(QMenuBar):
@@ -31,7 +33,6 @@ class MenuBar(QMenuBar):
         self.__abrir_recientes: QMenu = QMenu("Abrir recientes",self)
         self.archivos_menu()
 
-        self.edicion_menu()
         self.estadisticas_menu()
         self.graficos_menu()
 
@@ -74,22 +75,7 @@ class MenuBar(QMenuBar):
         archivos.addAction(salir)
     
     
-    def edicion_menu(self) -> None:
-        edicion = self.addMenu("&Edición")
-
-        # definir actions
-        cortar = QAction("Cortar",self,shortcut="Ctrl+x")
-        copiar = QAction("Copiar", self,shortcut="Ctrl+c")
-        pegar = QAction("Pegar",self,shortcut="Ctrl+v")
-
-
-        # definir menus
-
-        # agregar elementos
-        edicion.addAction(cortar)
-        edicion.addAction(copiar)
-        edicion.addAction(pegar)
-
+    
 
 
     def estadisticas_menu(self) -> None:
@@ -105,8 +91,6 @@ class MenuBar(QMenuBar):
         analisis_varianza = QAction("Analisis de varianza",self)
         analisis_varianza.triggered.connect(self.analisis_varianza)
 
-        coeficiente_determinacion = QAction("Coeficiente de determinación",self)
-        coeficiente_determinacion.triggered.connect(self.coeficiente_determinacion)
 
         regresion_lineal = QAction("Regresion lineal",self)
         regresion_lineal.triggered.connect(self.regresion_lineal)
@@ -115,7 +99,6 @@ class MenuBar(QMenuBar):
         estadisticas.addAction(medidas_resumen)
         estadisticas.addAction(tablas_frecuencias)
         estadisticas.addAction(analisis_varianza)
-        estadisticas.addAction(coeficiente_determinacion)
         estadisticas.addSeparator()
         estadisticas.addAction(regresion_lineal)
 
@@ -312,42 +295,70 @@ class MenuBar(QMenuBar):
 
     def analisis_varianza(self) -> None:
         dlg = DosVarDialog("Análisis de varianza",self.__datos.get_atributos())
-        if dlg.exec_():
-            x = self.__datos.get_ocurrencias(dlg.get_atributo_x())[dlg.get_atributo_x()].to_list() 
-            y = self.__datos.get_ocurrencias(dlg.get_atributo_y())[dlg.get_atributo_y()].to_list() 
+        confianza = QLineEdit(self)
+        confianza.setPlaceholderText("Ingresa el nivel de confianza")
+        validator = QIntValidator(self) 
+        confianza.setValidator(validator)
+        dlg.addWidgetP(confianza,1,0)
+        if dlg.exec_() and (confianza.text() and int(confianza.text()) >0 and int(confianza.text())<100):
+            if not dlg.get_atributo_x() or not dlg.get_atributo_y():
+                QMessageBox.critical(self, "Falta de variable", "Debe seleccionar dos variables.")
+                return     
+
+            x = self.__datos.get_dataFrame()[dlg.get_atributo_x()].to_list()
+            y = self.__datos.get_dataFrame()[dlg.get_atributo_y()].to_list()
+            regresion: RegresionLineal = RegresionLineal(x,y)
+
+            analisis_varianza:Anare = Anare(regresion.b1(),int(confianza.text()),x,y)
 
             frame = QFrame()
             layout = QGridLayout()
             frame.setLayout(layout)
-            model = TableModel(tabla_frecuencia.get_tabla(),tabla_frecuencia.get_headers())
+            model = TableModel(analisis_varianza.a_matriz(),analisis_varianza.columnas())
             tabla: QTableView = QTableView()
             tabla.setModel(model)
             layout.addWidget(tabla)
             
 
+
             dlg_general = DialogGeneral("Análisis de varianza",frame)
-            dlg_general.exec_()
- 
+            dlg.setFixedSize(700,200)
+            dlg_general.exec()
+        else:
+            QMessageBox.critical(self, "Valores erroneos", "Debe ingresar un nivel de confianza valido.")
        
-    def coeficiente_determinacion(self) -> None:
-        dlg = DosVarDialog("Coeficiente de determinación",self.__datos.get_atributos())
-        if dlg.exec_():
-            
-            frame = QFrame()
-            layout = QGridLayout()
-            frame.setLayout(layout)
-
-            dlg_general = DialogGeneral("Coeficiente de determinación",frame)
-            dlg_general.exec_()
-
  
     def regresion_lineal(self) -> None:
         dlg = DosVarDialog("Regresion",self.__datos.get_atributos())
         if dlg.exec_():
+            if not dlg.get_atributo_x() or not dlg.get_atributo_y():
+                QMessageBox.critical(self, "Falta de variable", "Debe seleccionar dos variables.")
+                return     
+
             frame = QFrame()
             layout = QGridLayout()
             frame.setLayout(layout)
+            x = self.__datos.get_dataFrame()[dlg.get_atributo_x()].to_list()
+            y = self.__datos.get_dataFrame()[dlg.get_atributo_y()].to_list()
+             
+            regresion: RegresionLineal = RegresionLineal(x,y)
 
+            layout.addWidget(QLabel("varianza x: "),0,0)
+            layout.addWidget(QLabel(str(regresion.varianza_x())),0,1)
+            layout.addWidget(QLabel("varianza y: "),1,0)
+            layout.addWidget(QLabel(str(regresion.varianza_y())),1,1)
+            layout.addWidget(QLabel("Covarianza:"),2,0)
+            layout.addWidget(QLabel(str(regresion.cov_xy())),2,1)
+            layout.addWidget(QLabel("r:"),3,0)
+            layout.addWidget(QLabel(str(regresion.r())),3,1)
+            layout.addWidget(QLabel("R²:"),4,0)
+            layout.addWidget(QLabel(str(regresion.coeficiente_determinacion())),4,1)
+            layout.addWidget(QLabel("Evaluación de R²:"),5,0)
+            layout.addWidget(QLabel(str(regresion.evaluacion_R())),5,1)
+            layout.addWidget(QLabel("Función:"),6,0)
+            aux = "y = "+ str(regresion.b0()) + " + " + str(regresion.b1()) + "x"
+            layout.addWidget(QLabel(aux),6,1) 
+            # TODO: agregar calculadora de y estimado 
             dlg_general = DialogGeneral("Regresión",frame)
             dlg_general.exec_()
  
@@ -362,7 +373,9 @@ class MenuBar(QMenuBar):
     def diagrama_dispersion(self) -> None:
         dlg = DosVarDialog("Diagrama de dispersión",self.__datos.get_atributos("bool","literal"))
         if dlg.exec_():
-             
+            if not dlg.get_atributo_x() or not dlg.get_atributo_y():
+                QMessageBox.critical(self, "Falta de variable", "Debe seleccionar dos variables.")
+                return     
             atributo_x = self.__datos.get_valores(dlg.get_atributo_x()).to_list()
             atributo_y = self.__datos.get_valores(dlg.get_atributo_y()).to_list()
             graficos_doble = GraficoDispersion(atributo_x,atributo_y,dlg.get_atributo_x(),dlg.get_atributo_y())
@@ -397,7 +410,6 @@ class MenuBar(QMenuBar):
             boton_guardar.clicked.connect(lambda: graficos_barras.guardar_grafico(self.guardar_grafico()))
             layout.addWidget(canvas)
             layout.addWidget(boton_guardar)
-
             canvas.draw()
 
             dlg_general = DialogGeneral("Gráfico de barras",frame)
@@ -408,6 +420,9 @@ class MenuBar(QMenuBar):
     def grafico_doble_entrada(self) -> None:
         dlg = DosVarDialog("Gráfico de doble entrada",self.__datos.get_atributos(),*self.__datos.get_atributos("bool","literal"))
         if dlg.exec_():
+            if not dlg.get_atributo_x() or not dlg.get_atributo_y():
+                QMessageBox.critical(self, "Falta de variable", "Debe seleccionar dos variables.")
+                return     
 
             atributo_x = self.__datos.get_valores(dlg.get_atributo_x())
             atributo_y = self.__datos.get_valores(dlg.get_atributo_y())
@@ -433,11 +448,14 @@ class MenuBar(QMenuBar):
     def tabla_contingencia(self) -> None:
         dlg = DosVarDialog("Regresion",self.__datos.get_atributos())
         if dlg.exec_():
+            if not dlg.get_atributo_x() or not dlg.get_atributo_y():
+                QMessageBox.critical(self, "Falta de variable", "Debe seleccionar dos variables.")
+                return     
             
-            if self.__datos.get_tipo(dlg.get_atributo_x())=='literal':
-                atributo_x = self.__datos.get_valores(dlg.get_atributo_x()).to_list()
-            if self.__datos.get_tipo(dlg.get_atributo_y()) == 'literal':
-                atributo_y = self.__datos.get_valores(dlg.get_atributo_y()).to_list()
+
+            atributo_x = self.__datos.get_valores(dlg.get_atributo_x()).to_list()
+
+            atributo_y = self.__datos.get_valores(dlg.get_atributo_y()).to_list()
             tabla_contigencia: TablaContigencia = TablaContigencia(atributo_x,atributo_y,dlg.get_atributo_x(),dlg.get_atributo_y(),self.__datos)
             
             frame = QFrame()

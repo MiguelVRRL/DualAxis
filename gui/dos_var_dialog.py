@@ -1,5 +1,5 @@
-from typing import override
-from PySide6.QtWidgets import QDialog,QDialogButtonBox, QGridLayout, QGroupBox, QLabel, QListWidget, QVBoxLayout, QGroupBox
+from types import NoneType
+from PySide6.QtWidgets import QDialog,QDialogButtonBox, QGridLayout, QGroupBox, QLabel, QListWidget, QVBoxLayout, QGroupBox,QWidget
 
 class DosVarDialog(QDialog):
     def __init__(self, titulo: str,atributos: list[str], *tipo_excluido):
@@ -75,7 +75,10 @@ class DosVarDialog(QDialog):
         self.lista_y.takeItem(i.row())
     
     def get_atributo_x(self) -> str:
-        return self.lista_x.item(0).text()
+        return self.lista_x.item(0).text() if not self.lista_x.item(0) is None else ""
     def get_atributo_y(self) -> str:
-        return self.lista_y.item(0).text()
+        return self.lista_y.item(0).text() if not self.lista_y.item(0) is None else ""
+    def addWidgetP(self, widget: QWidget,columna: int, fila: int):
+        self.layout.addWidget(widget,columna,fila)
+        self.layout.addWidget(self.buttonBox,columna+1,1)
 

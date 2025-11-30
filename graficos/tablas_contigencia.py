@@ -10,7 +10,7 @@ class TablaContigencia:
         self.atributo_x = atributo_x
         self.atributo_y = atributo_y
 
-        self.tabla = pd.crosstab(atributo_x,atributo_y)
+        self.tabla = pd.crosstab(atributo_x,atributo_y,margins=True,margins_name='Total')
     def get_dataFrame(self):
         return self.tabla
 

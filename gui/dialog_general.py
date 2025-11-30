@@ -1,7 +1,7 @@
 from PySide6.QtWidgets import QDialog,QDialogButtonBox, QGridLayout, QFrame, QWidget
 
 class DialogGeneral(QDialog):
-    def __init__(self, titulo: str,frame: QFrame):
+    def __init__(self,titulo: str,frame: QFrame):
         super().__init__()
         self.setWindowTitle(titulo)
         self.layout = QGridLayout()

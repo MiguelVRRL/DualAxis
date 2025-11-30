@@ -118,7 +118,7 @@ class Tabla(QAbstractTableModel):
     
         # Insertar la nueva columna en el DataFrame
 
-        self._data.insert(position, nombre_columna, [""] * len(self._data))
+        self._data.insert(position, nombre_columna, [" "] * len(self._data))
     
         # Finalizar la inserción
         self.endInsertColumns()
@@ -141,8 +141,9 @@ class Tabla(QAbstractTableModel):
     
         # Obtener nombre de la columna y eliminarla
         nombre_columna = self._data.columns[position]
-        self._data = self._data.drop(columns=[nombre_columna])
-    
+        self._data.drop(columns=[nombre_columna],inplace=True)
+        self._data.reset_index(drop=True, inplace=True)
+
         # Finalizar la eliminación
         self.endRemoveColumns()
         self.__modificado = True
