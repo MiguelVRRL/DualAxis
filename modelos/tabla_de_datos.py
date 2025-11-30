@@ -99,7 +99,7 @@ class TablaDatos:
                         # print("menor valor: ",menor_valor+(i*c), " comparacion: ",lista_llaves[j], " resultado: ", menor_valor+(i*c) >= lista_llaves[j])
                         # print("mayor valor: ",menor_valor+((i+1)*c)," comparacion: ", lista_llaves[j], " resultado: ",lista_llaves[j] < menor_valor+((i+1)*c))
 
-                        if (menor_valor+(i*c) < lista_llaves[j]) and (lista_llaves[j] < menor_valor+((i+1)*c)) :
+                        if (menor_valor+(i*c) <= lista_llaves[j]) and ( lista_llaves[j] <  menor_valor+((i+1)*c) or (i==num_clases-1 and lista_llaves[j] <=  menor_valor+((i+1)*c)) )  :
                             diccionario_rangos[aux] += lista_datos[lista_llaves[j]]
                 return pd.DataFrame({columna:diccionario_rangos})
     def get_valores(self, columna: str):

@@ -1,6 +1,5 @@
 from matplotlib.figure import Figure
 import pandas as pd
-import math
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -19,7 +18,7 @@ class GraficoDobleEntrada:
         if tabla_datos.get_tipo(titulo_y) == 'literal':
             atributo_x_ = tabla_datos.get_valores(titulo_x).to_list()
             atributo_y_ = tabla_datos.get_valores(titulo_y).to_list()
-            self.tabla = pd.crosstab(atributo_x_,atributo_y_)
+            self.tabla = pd.crosstab(atributo_x_,atributo_y_,colnames=[self.titulo_y])
 
             self.tabla.plot.bar(ax=self.__axes)
 
@@ -39,7 +38,7 @@ class GraficoDobleEntrada:
                 if (menor_valor+(i*c) <= y and ( y <  menor_valor+((i+1)*c) or (i==len(aux_grupos)-1 and y <=  menor_valor+((i+1)*c)) )  ):
                     diccionario_tipos[aux_grupos[i]][lista_literales.index(x)] += 1
         
-        
+        print(diccionario_tipos) 
         x = np.arange(len(lista_literales))
 
         
@@ -66,7 +65,7 @@ class GraficoDobleEntrada:
         # Add some text for labels, title and custom x-axis tick labels, etc.
         ax.set_ylabel("fi")
         ax.set_xticks(x + width, lista_literales)
-        ax.legend(loc='upper left', ncols=len(aux_grupos)+1)
+        ax.legend(loc='upper right', ncols=len(aux_grupos)+1)
 
 
 

@@ -3,10 +3,6 @@ from collections import Counter
 
 class MedidasResumen:
     def __init__(self, x: list[int | float], fr: list[int] = []):
-        """
-        x: valores
-        fr: frecuencias (vacía => datos simples)
-        """
         if not x:
             raise ValueError("La lista de valores x no puede estar vacía.")
 

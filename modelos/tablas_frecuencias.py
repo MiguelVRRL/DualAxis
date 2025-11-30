@@ -6,6 +6,7 @@ class TablaFrecuencia:
         self.__tipo: str = tipo
         self.__x = x 
         self.__n = sum(self.__x.to_dict('list')[self.__titulo])
+        print(self.__x.to_dict('list')[self.__titulo])
     def valores(self):
         return list(self.__x.to_dict()[self.__titulo].keys())
     def fi(self):
@@ -53,7 +54,9 @@ class TablaFrecuencia:
                 tabla.append(self.fraa())
                 tabla.append(self.frapa())
 
-        return self.transponer_matriz(tabla)
+        tabla = self.transponer_matriz(tabla)
+        tabla.append(["" if i != 1 else self.__n for i in range(len(tabla))])
+        return tabla
     def get_headers(self):
         if self.__tipo in ["continuo",'discreto']:
             return ["Intervalos",'fi','mc','fr','fr%','fia','fra','fra%','fia*','fra*','fra%*']

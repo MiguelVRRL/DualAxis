@@ -9,7 +9,7 @@ class TablaContigencia:
         self.tabla_datos = tabla_datos
         self.atributo_x = atributo_x
         self.atributo_y = atributo_y
-       
+
         self.tabla = pd.crosstab(atributo_x,atributo_y)
     def get_dataFrame(self):
         return self.tabla

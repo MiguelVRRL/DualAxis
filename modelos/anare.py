@@ -3,8 +3,8 @@ import scipy.stats as stats
 
 
 class Anare:
-    def __init__(self, n:int,b1:float,nivel_confianza: float, x: list[int | float], y: list[int | float ]) -> None:
-        self.__n: int = n
+    def __init__(self,b1:float,nivel_confianza: float, x: list[int | float], y: list[int | float ]) -> None:
+        self.__n: int = len(x)
         self.__b1 = b1
         self.__nivel_confianza = nivel_confianza
         self.__arr_x = np.array(x)
@@ -32,6 +32,18 @@ class Anare:
         return self.sce()/self.gle()
     def fc(self) -> float:
         return self.cmr()/self.cme()
-
+    def ft(self):
+        return stats.f.ppf(1 - 0.05, self.__n, 5)
+    def a_matriz(self):
+        return [
+            ["Regresión",self.glr(),self.scr(),self.cmr(),self.fc(),self.ft()],
+            ["Error",self.gle(),self.sce(),self.cme(),'',''],
+            ["Total",self.glt(),self.sct(),'','','']
+        ]
+    def conclusion(self):
+        if self.fc() > self.ft():
+            return "Se rechaza la hipótesis nula para dar paso a la hipótesis alternativa"
+        else:
+            return "Se rechaza la hipótesis alternativa para dar paso a la hipótesis nula"
 
 

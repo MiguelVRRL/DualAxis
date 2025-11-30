@@ -25,7 +25,11 @@ class Tabla(QAbstractTableModel):
     def setData(self, index, value, role):
         if role == Qt.ItemDataRole.EditRole:
             self.__modificado = True
-            self._data.iloc[index.row(),index.column()] = value
+            valor = value 
+            if valor.isdecimal():
+                valor = int(valor)
+        
+            self._data.iloc[index.row(),index.column()] = valor
             return True
     @override
     def rowCount(self, index: QModelIndex ):
@@ -59,8 +63,28 @@ class Tabla(QAbstractTableModel):
         for i in range(len(self._data)-2, position-1, -1):  # -2 porque ya añadimos una fila
             if i >= position:
                 self._data.iloc[i+1] = self._data.iloc[i].copy()
-        self._data.loc[position] = [""] * len(self._data.columns)
+        lista_elementos = []
+        for i in self._data.dtypes:
+            match i:
+                case 'int64':
+                    lista_elementos.append(0)
+                case 'object':
+                    lista_elementos.append(' ')
+                case 'bool':
+                    lista_elementos.append(True)
+                case 'float64':
+                    lista_elementos.append(0.0)
 
+
+        self._data.loc[len(self._data)] = lista_elementos
+    
+
+        for i in range(len(self._data)-2, position-1, -1):
+            if i >= position:
+                self._data.iloc[i+1] = self._data.iloc[i].copy()
+    
+
+        self._data.loc[position] = lista_elementos
         self.endInsertRows()
         self.__modificado = True
 
@@ -71,16 +95,14 @@ class Tabla(QAbstractTableModel):
         # Verificar que hay filas para eliminar
         if self.rowCount(parent) <= 1 or position >= self.rowCount(parent) :
             return False
-    
-        
+     
     
         # Comenzar a eliminar - UNA fila en la última posición
         self.beginRemoveRows(parent, position, position)
     
         # Eliminar la última fila del DataFrame
-
-        self._data = self._data.drop(self._data.index[position]).reset_index(drop=True)
- 
+        self._data.drop(self._data.index[position], inplace=True)
+        self._data.reset_index(drop=True, inplace=True)
         # Finalizar la eliminación
         self.endRemoveRows()
         self.__modificado = True
@@ -95,6 +117,7 @@ class Tabla(QAbstractTableModel):
         self.beginInsertColumns(parent, position, position)
     
         # Insertar la nueva columna en el DataFrame
+
         self._data.insert(position, nombre_columna, [""] * len(self._data))
     
         # Finalizar la inserción

@@ -313,10 +313,17 @@ class MenuBar(QMenuBar):
     def analisis_varianza(self) -> None:
         dlg = DosVarDialog("Análisis de varianza",self.__datos.get_atributos())
         if dlg.exec_():
-            
+            x = self.__datos.get_ocurrencias(dlg.get_atributo_x())[dlg.get_atributo_x()].to_list() 
+            y = self.__datos.get_ocurrencias(dlg.get_atributo_y())[dlg.get_atributo_y()].to_list() 
+
             frame = QFrame()
             layout = QGridLayout()
             frame.setLayout(layout)
+            model = TableModel(tabla_frecuencia.get_tabla(),tabla_frecuencia.get_headers())
+            tabla: QTableView = QTableView()
+            tabla.setModel(model)
+            layout.addWidget(tabla)
+            
 
             dlg_general = DialogGeneral("Análisis de varianza",frame)
             dlg_general.exec_()
